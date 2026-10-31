@@ -28,18 +28,26 @@ A folder: `salmon/` (the salmon index, built with the genome as decoys when a ge
 given, `-k 31`), `tx2gene.csv` (`transcript_id, gene_id, gene_name, gene_type`; versions kept
 as in the FASTA headers), `genes.csv` (`gene_id, gene_name, gene_type, chrom, length`),
 `index.json` (`organism`, `source` (e.g. `GENCODE M39`), file names and sha256 of the inputs,
-salmon version, decoys yes/no). rnaseq-quant refuses an index whose salmon major version
-differs from its own.
+salmon version, decoys yes/no, and the salmon index format: `index_version`,
+`sshash_format_version` from `salmon/info.json`). rnaseq-quant refuses an index whose format
+(`index_version`, `sshash_format_version` in `salmon/info.json`) differs from what its own salmon
+writes (salmon 2.7-2.8: 2 / 5; salmon 2.9 moved to index format 3, so its indexes and 2.8's are
+not interchangeable even within major version 2).
 
 ### Reads (`reads` input of rnaseq-quant)
 
 FASTQ (`.fastq.gz`, `.fq.gz`, plain also accepted) anywhere under the input. Samples are
 grouped by name: Illumina `<sample>_S<n>_L<lane>_R<1|2>_001`, `<sample>_R1/_R2`, `_1/_2`;
 lanes of one sample are concatenated logically (salmon takes several files). Paired when every
-R1 has an R2. An optional sample sheet (`SAMPLE_SHEET`, default `samples.csv`: `sample_id`,
+R1 has an R2 and the first records of R1 and R2 carry the same read name (otherwise each file is
+a single-end sample of its own, with a warning). Sample ids are unique after sanitising (on a
+clash the relative folder path is prefixed; a clash left after that fails those samples). An
+optional sample sheet (`SAMPLE_SHEET`, default `samples.csv`: `sample_id`,
 `fastq_1`, `fastq_2` (optional), then any metadata) overrides the grouping. SPARC
 `samples.xlsx`/`subjects.xlsx` are read as in sc-prep (same matching on `sam-`/`sub-`/`pool-`
-folders, same `METADATA_COLUMNS` allow-list, `samples_full.csv` for everything).
+folders, same `METADATA_COLUMNS` allow-list plus `subject_id`, `samples_full.csv` for
+everything). A `pool-…` folder takes every sample row of that pool; values that differ between
+the pooled rows (e.g. `subject_id` of a library pooled from two mice) are joined with `;`.
 
 ### Counts (`counts` port of rnaseq-quant; input of bulk-de)
 
@@ -48,10 +56,14 @@ folders, same `METADATA_COLUMNS` allow-list, `samples_full.csv` for everything).
   to integers, so DESeq2 needs no offsets.
 - `gene_tpm.csv`: same shape, TPM.
 - `samples.csv`: `sample_id`, `files` (relative paths, `;`-separated), `layout` (`single`,
-  `paired`), `reads_in`, `reads_after_trim`, `mapping_rate`, `library_type` (salmon's), then
-  metadata columns.
+  `paired`), `reads_in`, `reads_after_trim`, `mapping_rate`, `library_type` (salmon's),
+  `strand_mapping_bias`, `compatible_fragment_ratio` (salmon's `lib_format_counts.json`),
+  `salmon_warnings` (salmon's diagnostics, `;`-separated), then metadata columns.
 - `qc/`: per sample `<sample_id>.fastp.json`, `<sample_id>.fastp.html`, salmon `meta_info.json`
   and `lib_format_counts.json` copied as `<sample_id>.salmon.json`.
+
+rnaseq-quant also writes a `transcripts` port: `<sample_id>/quant.sf`, `cmd_info.json`,
+`lib_format_counts.json`, `aux_info/meta_info.json` (the layout tximport/tximeta read).
 
 bulk-de reads either this or the other count formats above, and says what it found in `de.json`
 (it writes a `samples.csv` with the design columns and per-sample QC, not a converted count table).
