@@ -1,7 +1,7 @@
 {
   "name": "Bulk RNA-seq from FASTQ",
   "summary": "FASTQ to differential expression: fastp, salmon, PyDESeq2, GSEA, HTML report.",
-  "description": "Quantifies bulk RNA-seq libraries and tests for differential expression. Builds a salmon index from a transcriptome FASTA and GTF (rnaseq-index; build it once and keep it as a workspace reference for later runs), trims and checks reads with fastp and quantifies them with salmon, summarized to length-scaled gene counts as tximport does (rnaseq-quant), fits DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study.",
+  "description": "Quantifies bulk RNA-seq libraries and tests for differential expression. Builds a salmon index from a transcriptome FASTA and GTF (rnaseq-index; build it once and keep it as a workspace reference for later runs), trims and checks reads with fastp and quantifies them with salmon, summarized to length-scaled gene counts as tximport does (rnaseq-quant), fits DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study. If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report.",
   "inputs": [
     {
       "id": "reads",
@@ -92,7 +92,7 @@
       "id": "index",
       "type": "processor",
       "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-index",
-      "tag": "v0.1.0",
+      "tag": "v0.1.1",
       "dependsOn": [
         "transcriptome",
         "annotation"

@@ -1,7 +1,7 @@
 {
   "name": "Bulk RNA-seq from counts",
   "summary": "Count tables to differential expression: PyDESeq2, GSEA, HTML report.",
-  "description": "Tests deposited bulk RNA-seq count tables for differential expression. Reads rnaseq-quant output, featureCounts, RSEM, HTSeq or STAR files, or a genes x samples CSV/TSV/XLSX, with sample metadata from a sheet or the dataset's SPARC subjects/samples (bulk-de: PyDESeq2, VST PCA, preranked GSEA on Hallmark and GO:BP), and writes an HTML report (bulk-report). Refuses TPM/FPKM tables. Set DESIGN and CONTRASTS for your study.",
+  "description": "Tests deposited bulk RNA-seq count tables for differential expression. Reads rnaseq-quant output, featureCounts, RSEM, HTSeq or STAR files, or a genes x samples CSV/TSV/XLSX, with sample metadata from a sheet or the dataset's SPARC subjects/samples (bulk-de: PyDESeq2, VST PCA, preranked GSEA on Hallmark and GO:BP), and writes an HTML report (bulk-report). Refuses TPM/FPKM tables. Set DESIGN and CONTRASTS for your study. If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report.",
   "inputs": [
     {
       "id": "counts",

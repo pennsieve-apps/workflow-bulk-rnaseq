@@ -56,7 +56,8 @@ def from_fastq():
             "DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and "
             "writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). "
             "Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set "
-            "bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study."),
+            "bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study."
+            " If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report."),
         "inputs": [
             interface("reads", "FASTQ reads", "A folder of .fastq.gz files (single- or paired-end; Illumina "
                       "names or a samples.csv), with optional SPARC samples.xlsx / subjects.xlsx.", 2),
@@ -87,7 +88,8 @@ def from_counts():
             "output, featureCounts, RSEM, HTSeq or STAR files, or a genes x samples CSV/TSV/XLSX, with "
             "sample metadata from a sheet or the dataset's SPARC subjects/samples (bulk-de: PyDESeq2, VST "
             "PCA, preranked GSEA on Hallmark and GO:BP), and writes an HTML report (bulk-report). Refuses "
-            "TPM/FPKM tables. Set DESIGN and CONTRASTS for your study."),
+            "TPM/FPKM tables. Set DESIGN and CONTRASTS for your study."
+            " If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report."),
         "inputs": [
             interface("counts", "Count tables", "Gene count tables plus a samples.csv or SPARC "
                       "samples.xlsx / subjects.xlsx.", 2),
