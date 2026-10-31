@@ -1,0 +1,105 @@
+{
+  "name": "Bulk RNA-seq from counts",
+  "summary": "Count tables to differential expression: PyDESeq2, GSEA, HTML report.",
+  "description": "Tests deposited bulk RNA-seq count tables for differential expression. Reads rnaseq-quant output, featureCounts, RSEM, HTSeq or STAR files, or a genes x samples CSV/TSV/XLSX, with sample metadata from a sheet or the dataset's SPARC subjects/samples (bulk-de: PyDESeq2, VST PCA, preranked GSEA on Hallmark and GO:BP), and writes an HTML report (bulk-report). Refuses TPM/FPKM tables. Set DESIGN and CONTRASTS for your study.",
+  "inputs": [
+    {
+      "id": "counts",
+      "name": "Count tables",
+      "description": "Gene count tables plus a samples.csv or SPARC samples.xlsx / subjects.xlsx.",
+      "position": {
+        "x": 40,
+        "y": 300
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "id": "report_out",
+      "name": "Report",
+      "from": {
+        "step": "report",
+        "output": "report"
+      },
+      "position": {
+        "x": 820,
+        "y": 170
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/bulk-rnaseq/report"
+        }
+      }
+    },
+    {
+      "id": "de_out",
+      "name": "Differential expression",
+      "from": {
+        "step": "de",
+        "output": "de"
+      },
+      "position": {
+        "x": 820,
+        "y": 300
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/bulk-rnaseq/de"
+        }
+      }
+    }
+  ],
+  "processors": [
+    {
+      "id": "de",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/bulk-de",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "counts"
+      ],
+      "position": {
+        "x": 300,
+        "y": 300
+      },
+      "cpu": "2048",
+      "memory": "4096",
+      "inputs": [
+        {
+          "from": "counts",
+          "input": "counts"
+        }
+      ],
+      "defaultParams": {
+        "DESIGN": "~ condition"
+      }
+    },
+    {
+      "id": "report",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/bulk-report",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "de"
+      ],
+      "position": {
+        "x": 560,
+        "y": 300
+      },
+      "cpu": "1024",
+      "memory": "2048",
+      "inputs": [
+        {
+          "from": "de",
+          "output": "de",
+          "input": "de"
+        }
+      ],
+      "defaultParams": {
+        "REPORT_TITLE": "Bulk RNA-seq: differential expression"
+      }
+    }
+  ]
+}

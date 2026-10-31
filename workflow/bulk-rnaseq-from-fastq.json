@@ -1,0 +1,201 @@
+{
+  "name": "Bulk RNA-seq from FASTQ",
+  "summary": "FASTQ to differential expression: fastp, salmon, PyDESeq2, GSEA, HTML report.",
+  "description": "Quantifies bulk RNA-seq libraries and tests for differential expression. Builds a salmon index from a transcriptome FASTA and GTF (rnaseq-index; build it once and keep it as a workspace reference for later runs), trims and checks reads with fastp and quantifies them with salmon, summarized to length-scaled gene counts as tximport does (rnaseq-quant), fits DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study.",
+  "inputs": [
+    {
+      "id": "reads",
+      "name": "FASTQ reads",
+      "description": "A folder of .fastq.gz files (single- or paired-end; Illumina names or a samples.csv), with optional SPARC samples.xlsx / subjects.xlsx.",
+      "position": {
+        "x": 40,
+        "y": 300
+      }
+    },
+    {
+      "id": "transcriptome",
+      "name": "Transcriptome FASTA",
+      "description": "Transcript sequences, e.g. GENCODE gencode.vM39.transcripts.fa.gz.",
+      "position": {
+        "x": 40,
+        "y": 430
+      }
+    },
+    {
+      "id": "annotation",
+      "name": "Annotation GTF",
+      "description": "The matching GTF, e.g. gencode.vM39.annotation.gtf.gz.",
+      "position": {
+        "x": 40,
+        "y": 560
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "id": "report_out",
+      "name": "Report",
+      "from": {
+        "step": "report",
+        "output": "report"
+      },
+      "position": {
+        "x": 1340,
+        "y": 170
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/bulk-rnaseq/report"
+        }
+      }
+    },
+    {
+      "id": "de_out",
+      "name": "Differential expression",
+      "from": {
+        "step": "de",
+        "output": "de"
+      },
+      "position": {
+        "x": 1340,
+        "y": 300
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/bulk-rnaseq/de"
+        }
+      }
+    },
+    {
+      "id": "counts_out",
+      "name": "Gene counts",
+      "from": {
+        "step": "quant",
+        "output": "counts"
+      },
+      "position": {
+        "x": 1340,
+        "y": 430
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/bulk-rnaseq/counts"
+        }
+      }
+    }
+  ],
+  "processors": [
+    {
+      "id": "index",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-index",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "transcriptome",
+        "annotation"
+      ],
+      "position": {
+        "x": 300,
+        "y": 430
+      },
+      "cpu": "4096",
+      "memory": "16384",
+      "inputs": [
+        {
+          "from": "transcriptome",
+          "input": "transcriptome"
+        },
+        {
+          "from": "annotation",
+          "input": "annotation"
+        }
+      ]
+    },
+    {
+      "id": "quant",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-quant",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "reads",
+        "index"
+      ],
+      "position": {
+        "x": 560,
+        "y": 300
+      },
+      "cpu": "8192",
+      "memory": "16384",
+      "inputs": [
+        {
+          "from": "reads",
+          "input": "reads"
+        },
+        {
+          "from": "index",
+          "output": "index",
+          "input": "index"
+        }
+      ]
+    },
+    {
+      "id": "de",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/bulk-de",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "quant"
+      ],
+      "position": {
+        "x": 820,
+        "y": 300
+      },
+      "cpu": "2048",
+      "memory": "4096",
+      "inputs": [
+        {
+          "from": "quant",
+          "output": "counts",
+          "input": "counts"
+        }
+      ],
+      "defaultParams": {
+        "DESIGN": "~ condition"
+      }
+    },
+    {
+      "id": "report",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/bulk-report",
+      "tag": "v0.1.0",
+      "dependsOn": [
+        "de",
+        "quant"
+      ],
+      "position": {
+        "x": 1080,
+        "y": 300
+      },
+      "cpu": "1024",
+      "memory": "2048",
+      "inputs": [
+        {
+          "from": "de",
+          "output": "de",
+          "input": "de"
+        },
+        {
+          "from": "quant",
+          "output": "counts",
+          "input": "counts"
+        }
+      ],
+      "defaultParams": {
+        "REPORT_TITLE": "Bulk RNA-seq: differential expression"
+      }
+    }
+  ]
+}
