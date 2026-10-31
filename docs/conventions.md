@@ -53,8 +53,8 @@ folders, same `METADATA_COLUMNS` allow-list, `samples_full.csv` for everything).
 - `qc/`: per sample `<sample_id>.fastp.json`, `<sample_id>.fastp.html`, salmon `meta_info.json`
   and `lib_format_counts.json` copied as `<sample_id>.salmon.json`.
 
-bulk-de reads either this or the other count formats above (it converts them to the same
-`gene_counts.csv` + `samples.csv` shape and says what it found in `de.json`).
+bulk-de reads either this or the other count formats above, and says what it found in `de.json`
+(it writes a `samples.csv` with the design columns and per-sample QC, not a converted count table).
 
 ### Differential expression (`de` port of bulk-de)
 
@@ -78,7 +78,7 @@ Under `~/code/pennsieve/workflow-bulk-rnaseq/data/` (gitignored; `scripts/fetch-
 - `tg-tumour/`: Discover 427 v1, *Sex-dependent differences in the genomic profile of lingual
   sensory neurons in naïve and tongue-tumor bearing mice* (RE-JOIN; Tumanov A, Shein S, Lai Z,
   Chen Y, Ruparel S; doi:10.26275/gaap-zlpj; CC BY 4.0; described by
-  doi:10.1038/s41598-023-40380-6). 12 single-end libraries `primary/pool-<F|M><N|T><1-3>/` with
+  doi:10.1038/s41598-023-40380-6). 12 single-end libraries in `primary/pool-*/` (females `FN1-3`, `FT1-3`; males `N1-3`, `T1`, `T2`, `MT`; sex and group are in the SPARC sheets, matched on `pool_id`) with
   `*_R1.fastq.gz` (~1 GB each), the authors' per-sample `*_Genes_ReadCount.txt`, and SPARC
   `samples.xlsx`/`subjects.xlsx`. Design: sex (F/M) × condition (N = naïve, T = tongue tumour).
   The authors' counts let bulk-de be tested without quantification and let rnaseq-quant be
