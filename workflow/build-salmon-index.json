@@ -1,0 +1,88 @@
+{
+  "name": "Build a salmon index",
+  "summary": "Transcriptome FASTA + GTF to a salmon index, saved to the dataset for RNA-seq runs.",
+  "description": "Builds a salmon index from a transcriptome FASTA and the GTF of the same release (rnaseq-index), for an organism or annotation that Pennsieve's reference data doesn't have, and saves it to the dataset under derivatives/salmon-index. Link that folder to the Genome input of Bulk RNA-seq from FASTQ to quantify against it. A genome FASTA of the same assembly, if given, is indexed as decoy sequences (recommended, but needs much more memory and time). The index records its inputs with checksums (index.json, provenance.json). If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report.",
+  "inputs": [
+    {
+      "id": "transcriptome",
+      "name": "Transcriptome FASTA",
+      "description": "Transcript sequences, e.g. GENCODE gencode.vM39.transcripts.fa.gz or Ensembl *.cdna.all.fa.gz.",
+      "position": {
+        "x": 40,
+        "y": 300
+      }
+    },
+    {
+      "id": "annotation",
+      "name": "Annotation GTF",
+      "description": "The GTF of the same release, e.g. gencode.vM39.annotation.gtf.gz.",
+      "position": {
+        "x": 40,
+        "y": 430
+      }
+    },
+    {
+      "id": "genome",
+      "name": "Genome FASTA (optional)",
+      "description": "The genome of the same assembly, indexed as decoys, e.g. GRCm39.primary_assembly.genome.fa.gz.",
+      "position": {
+        "x": 40,
+        "y": 560
+      },
+      "optional": true
+    }
+  ],
+  "outputs": [
+    {
+      "id": "index_out",
+      "name": "Salmon index",
+      "from": {
+        "step": "index",
+        "output": "index"
+      },
+      "position": {
+        "x": 560,
+        "y": 430
+      },
+      "default": {
+        "targetType": "Pennsieve Dataset",
+        "params": {
+          "TARGET_FOLDER": "derivatives/salmon-index"
+        }
+      }
+    }
+  ],
+  "processors": [
+    {
+      "id": "index",
+      "type": "processor",
+      "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-index",
+      "tag": "v0.1.1",
+      "dependsOn": [
+        "transcriptome",
+        "annotation",
+        "genome"
+      ],
+      "position": {
+        "x": 300,
+        "y": 430
+      },
+      "cpu": "4096",
+      "memory": "16384",
+      "inputs": [
+        {
+          "from": "transcriptome",
+          "input": "transcriptome"
+        },
+        {
+          "from": "annotation",
+          "input": "annotation"
+        },
+        {
+          "from": "genome",
+          "input": "genome"
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "Bulk RNA-seq from FASTQ",
   "summary": "FASTQ to differential expression: fastp, salmon, PyDESeq2, GSEA, HTML report.",
-  "description": "Quantifies bulk RNA-seq libraries and tests for differential expression. Builds a salmon index from a transcriptome FASTA and GTF (rnaseq-index; build it once and keep it as a workspace reference for later runs), trims and checks reads with fastp and quantifies them with salmon, summarized to length-scaled gene counts as tximport does (rnaseq-quant), fits DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study. If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report.",
+  "description": "Quantifies bulk RNA-seq libraries and tests for differential expression. Trims and checks reads with fastp and quantifies them with salmon against a salmon index, summarized to length-scaled gene counts as tximport does (rnaseq-quant), fits DESeq2 models with PyDESeq2 and runs preranked GSEA on Hallmark and GO:BP sets (bulk-de), and writes an HTML report with sample QC, PCA, volcano and MA plots and citations (bulk-report). The index comes from Pennsieve's reference data (human GENCODE 50 by default, or mouse GENCODE M39); for another organism or annotation, build one with the Build a salmon index workflow and link it to the Genome input. Sample metadata comes from a samples.csv or the dataset's SPARC subjects/samples sheets; set bulk-de's DESIGN (e.g. ~ sex + condition) and CONTRASTS for your study. If you used Pennsieve to store, analyse, share or publish data reported in a publication, please cite Goldblum Z, et al. Scientific Data 2025;12:1834 (doi:10.1038/s41597-025-06075-5), the datasets you used and the methods listed in the report.",
   "inputs": [
     {
       "id": "reads",
@@ -13,22 +13,14 @@
       }
     },
     {
-      "id": "transcriptome",
-      "name": "Transcriptome FASTA",
-      "description": "Transcript sequences, e.g. GENCODE gencode.vM39.transcripts.fa.gz.",
+      "id": "genome",
+      "name": "Genome",
+      "description": "The salmon index: Pennsieve's reference data (human by default, or mouse), or an index in a dataset (Build a salmon index).",
       "position": {
         "x": 40,
         "y": 430
-      }
-    },
-    {
-      "id": "annotation",
-      "name": "Annotation GTF",
-      "description": "The matching GTF, e.g. gencode.vM39.annotation.gtf.gz.",
-      "position": {
-        "x": 40,
-        "y": 560
-      }
+      },
+      "optional": true
     }
   ],
   "outputs": [
@@ -40,7 +32,7 @@
         "output": "report"
       },
       "position": {
-        "x": 1340,
+        "x": 1080,
         "y": 170
       },
       "default": {
@@ -58,7 +50,7 @@
         "output": "de"
       },
       "position": {
-        "x": 1340,
+        "x": 1080,
         "y": 300
       },
       "default": {
@@ -76,7 +68,7 @@
         "output": "counts"
       },
       "position": {
-        "x": 1340,
+        "x": 1080,
         "y": 430
       },
       "default": {
@@ -89,42 +81,16 @@
   ],
   "processors": [
     {
-      "id": "index",
-      "type": "processor",
-      "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-index",
-      "tag": "v0.1.1",
-      "dependsOn": [
-        "transcriptome",
-        "annotation"
-      ],
-      "position": {
-        "x": 300,
-        "y": 430
-      },
-      "cpu": "4096",
-      "memory": "16384",
-      "inputs": [
-        {
-          "from": "transcriptome",
-          "input": "transcriptome"
-        },
-        {
-          "from": "annotation",
-          "input": "annotation"
-        }
-      ]
-    },
-    {
       "id": "quant",
       "type": "processor",
       "sourceUrl": "https://github.com/pennsieve-apps/rnaseq-quant",
-      "tag": "v0.1.0",
+      "tag": "v0.2.0",
       "dependsOn": [
         "reads",
-        "index"
+        "genome"
       ],
       "position": {
-        "x": 560,
+        "x": 300,
         "y": 300
       },
       "cpu": "8192",
@@ -135,8 +101,7 @@
           "input": "reads"
         },
         {
-          "from": "index",
-          "output": "index",
+          "from": "genome",
           "input": "index"
         }
       ]
@@ -150,7 +115,7 @@
         "quant"
       ],
       "position": {
-        "x": 820,
+        "x": 560,
         "y": 300
       },
       "cpu": "2048",
@@ -170,13 +135,13 @@
       "id": "report",
       "type": "processor",
       "sourceUrl": "https://github.com/pennsieve-apps/bulk-report",
-      "tag": "v0.1.0",
+      "tag": "v0.1.1",
       "dependsOn": [
         "de",
         "quant"
       ],
       "position": {
-        "x": 1080,
+        "x": 820,
         "y": 300
       },
       "cpu": "1024",
